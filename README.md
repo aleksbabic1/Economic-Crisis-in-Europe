@@ -7,5 +7,5 @@ Structure: This repository is organized as follows: <br/>
 * outputs: contains a bib reference file, an rmd file, and a pdf file.  The pdf file is the final output of this project, generated using the rmd file. <br/>
 * README: tells the reader the structure of the repository <br/>
 * inputs: the r code that shows how the data was obtained <br/>
-* project.proj: the project <br/>
+* economiccrisis.Rproj: the project <br/>
 * LICENSE: the license of this project
