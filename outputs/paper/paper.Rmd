@@ -1,107 +1,288 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
-author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
-date: "`r format(Sys.time(), '%d %B %Y')`"
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
-output:
-  bookdown::pdf_document2
+title: "Satisfaction with the State of the Economy in Europe after the Great Recession"
+author: "Aleksandar Babic"
+date: "27/04/2022"
+thanks: "Code and data are available at https://github.com/aleksbabic1/Economic-Crisis-in-Europe"
+output: bookdown::pdf_document2
+nocite: '@*'
 toc: FALSE
-bibliography: references.bib
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 library(tidyverse)
-library(palmerpenguins)
+library(tidyselect)
+library(dplyr)
+library(knitr)
+library(reshape2)
+library(janitor)
+library(kableExtra)
+library(essurvey)
+library(ggplot2)
+show_countries()
+set_email("aleksandar.babic@mail.utoronto.ca")
+show_rounds()
+France_2018 <- import_country(country = "France", rounds = c(9))
+France_2008 <- import_country(country = "France", rounds = c(4))
+UK_2008 <- import_country(country = "United Kingdom", rounds = c(4))
+UK_2018 <- import_country(country = "United Kingdom", rounds = c(9))
+Norway_2008 <- import_country(country = "Norway", rounds = c(4))
+Norway_2018 <- import_country(country = "Norway", rounds = c(9))
+Slovenia_2008 <- import_country(country = "Slovenia", rounds = c(4))
+Slovenia_2018 <- import_country(country = "Slovenia", rounds = c(9))
+Spain_2008 <- import_country(country = "Spain", rounds = c(4))
+Spain_2018 <- import_country(country = "Spain", rounds = c(9))
+
+UK_economy_2008 <- subset(UK_2008, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                              "pdjobyr", "emplno","wkhtot", 
+                                              "uemp12m",  
+                                              "uempla", "hinctnta", "hincfel"))
+
+UK_economy_2018 <- subset(UK_2018, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                              "pdjobyr", "emplno","wkhtot", 
+                                              "uemp12m",  
+                                              "uempla", "hinctnta", "hincfel"))
+French_economy_2008 <- subset(France_2008, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                      "pdjobyr", "emplno","wkhtot", 
+                                                      "uemp12m",  "stflife",
+                                                      "uempla", "hinctnta", "hincfel"))
+
+French_economy_2018 <- subset(France_2018, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                      "pdjobyr", "emplno","wkhtot", 
+                                                      "uemp12m",  
+                                                      "uempla", "hinctnta", "hincfel"))
+
+Norwegian_economy_2008 <- subset(Norway_2008, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                         "pdjobyr", "emplno","wkhtot", 
+                                                         "uemp12m",  
+                                                         "uempla", "hinctnta", "hincfel"))
+
+Norwegian_economy_2018 <- subset(Norway_2018, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                         "pdjobyr", "emplno","wkhtot", 
+                                                         "uemp12m",  
+                                                         "uempla", "hinctnta", "hincfel"))
+
+Slovenian_economy_2008 <- subset(Slovenia_2008, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                           "pdjobyr", "emplno","wkhtot", 
+                                                           "uemp12m",  
+                                                           "uempla", "hinctnta", "hincfel"))
+
+Slovenian_economy_2018 <- subset(Slovenia_2018, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                           "pdjobyr", "emplno","wkhtot", 
+                                                           "uemp12m",  
+                                                           "uempla", "hinctnta", "hincfel"))
+
+Spanish_economy_2008 <- subset(Spain_2008, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                      "pdjobyr", "emplno","wkhtot", 
+                                                      "uemp12m",  
+                                                      "uempla", "hinctnta", "hincfel"))
+
+Spanish_economy_2018 <- subset(Spain_2018, select = c("stfeco", "stfgov","gincdif", "imbgeco","crmvct",
+                                                      "pdjobyr", "emplno","wkhtot", 
+                                                      "uemp12m",  
+                                                      "uempla", "hinctnta", "hincfel"))
 ```
 
-# Introduction
+## Introduction
 
-You can and should cross-reference sections and sub-sections. For instance, Section \@ref(data). R Markdown automatically makes the sections lower case and adds a dash to spaces to generate labels, for instance, Section \@ref(first-discussion-point). 
+The financial crisis of 2007-2008 was years in the making.  Cheap credit, low interest rates, irresponsible lending, and leveraging of financial institutions were some of the factors that led to the collapse of the American financial sector.  This lead to the worst recession in the global economy in six decades, since the crisis in America triggered a chain reaction within the interconnectivity of the global financial system.  European banks were heavily involved in subprime mortgage securitization in the United States and suffered massive losses as a result.  This transmitted the crisis to the European Union, since both European and American banks were following similar business models.  Starting with the second quarter of 2008, the economy contracted for five consecutive quarters.  Household wealth decreased due to drops in prices of assets such as real estate and stocks so savings became the preferred option to weather the unfavorable macroeconomic conditions.  As a result, investment and demand in the economy dropped which resulted in cuts in production and rising unemployment.  The goal of this paper is to analyze the impact the economic crisis had on five countries located in different regions of Europe, the United Kingdom, France, Spain, Slovenia, and Norway, and how they dealt with the recession.  
+
+## Data Source
+
+The dataset that was used for this analysis was the Economic Crisis, Quality of Work and Social Integration survey conducted by The European Social Survey.  This report investigated the implications of the economic crisis on people’s everyday experience of the quality of their jobs, their family lives and personal well-being and for their sense of commitment to the institutions of their society.  This data was gathered from different countries across Europe to assess how the crisis impacted countries differently.
+
+## Methodology and Data Collection
+
+This report presents the findings of a research task whose objective was to analyze the effects caused by the global economic crisis in 2008 in 19 European countries, providing representative national samples of the population.  This was done in a cross-country comparative manner.  In each round of the survey there were approximately 37,000 interviews carried out across the 19 countries, which included Anglo-Saxon countries, Nordic countries, Continental West European countries, Southern countries, and Eastern European countries.  Of these participants in the study, approximately 15,000 were employees in each round which provided the basis for the analyses of work quality.  Each country coordinated its own translation and fieldwork according to the ESS Core Scientific Team’s guidelines.  In this report, one country was chosen from each region of Europe to compare with countries from different regions.  Spain was chosen to represent Southern European countries, France represented Continental West European countries, the United Kingdom represented Anglo-Saxon countries, Norway represented Nordic countries, and Slovenia represented Eastern European countries..
+Participants in the survey were asked about political interest, party allegiance, subjective wellbeing, crime, social exclusion, fairness of income, and fairness of educational and job opportunities, among other questions.  These topics were the focal point of the first repeat module of the European Social Survey carried out in late 2008. It built upon a set of questions initially asked by the ESS in 2004 on family, work, and well-being, thereby providing a direct comparison between the period prior to the crisis and a period in which most countries were still recovering from the recession of 2008.  Additionally, another repeat module of the European Social Survey took place in 2018, allowing for a comparison of different economic factors a decade after the initial crisis.
+Participants were asked to choose from a number of potential responses and pick the one which represented their beliefs.  For many questions, a scale of 0-10 was used, with 0 being the most pessimistic or negative answer and 10 being the most positive and optimistic option.  Other times, participants were asked to choose an answer from the multiple choice options they were provided.
+Problems that this survey may have encountered include people not being up to date with the current economic climate in their country.  People who were not invested in assets such as stocks and real estate may not have understood the impact that this recession really had on the economy.  Additionally, since the interviews were face-to-face, participants may have given different answers than they believed because they were too shy to express their true thoughts.  As well field staff who resigned in the middle of their fieldwork were not replaced to maintain the quality of data, however this may have impacted the performance of other field workers who worked in understaffed teams.
+
+## Results and Discussion
+Each country in the survey was asked to rank their satisfaction with the state of their country’s economy on a scale from 0 to 10, with 0 being the least satisfied option and 10 being extremely satisfied.  The survey was conducted in 2008 and another time in 2018.  In general, there was a trend among the five European countries which was that the economy in 2008 was in a worse state than a decade later, however, the countries still differed in their perceptions of the economy.
+In 2008 in the United Kingdom, participants in the survey expressed their dissatisfaction with the current state of the economy.  The survey answers were skewed to the left towards a rating of 0, and the most popular answer was a 3 out of 10 satisfaction rate with 447 votes from 2318, while 324 people rated the economy at 0 out of 10, and only 10 people ranked it 10 out of 10.  Based on these reactions from the public, it is clear that the confidence in the British market was very low in 2008.  This is a result of the collapse in global financial institutions which sent global markets into a recession in the same year.  
 
 
+```{r plot1,echo=FALSE, fig.cap="satisfaction with economy UK 2008", warning=FALSE, message=FALSE}
+ggplot(UK_economy_2008, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the British Economy in 2008") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
 
-# Data
-
-Our data is of penguins (Figure \@ref(fig:bills)).
-
-```{r bills, fig.cap="Bills of penguins", echo = FALSE}
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = FALSE) +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
 ```
 
-Talk more about it.
+In the years preceding the financial crisis, the British bank Northern Rock had expanded aggressively, relying on international money markets to fund its rapid growth(Bank of England, 2018).  However, this source of financing dried up when problems in the US sub-prime mortgage market spread to Europe in the summer of 2007.  As a result, Northern Rock faced liquidation and despite liquidity support from the Bank of England, a run on Northern Rock was triggered after the bank’s disastrous position was made public later that year.  Under the legal framework for dealing with failing banks in the UK at the time, any deposits over £2,000 would not be fully reimbursed, and if the bank was declared insolvent and put into administration, deposits would have been frozen(Bank of England, 2018).  The UK government addressed the issues with its legal framework, and today it fully guarantees up to £85,000 in reimbursements.  As opposed to in 2008 when the government used taxpayers’ money to bailout banks, under the new setup, the cost to repay clients would fall on the shareholders and creditors of the failed bank(Bank of England, 2018).
+Due to the interconnectedness of global finance, the collapse of the US sub-prime mortgage market exposed the UK financial system as well.  This crisis revealed the need for an authority responsible for monitoring risks across the financial system, unlike before where oversight was shared between the Bank of England, the Treasury, and the Financial Services Authority where the roles were unclear.  As a result, the Bank of England’s Financial Policy Committee was established to spot risks and ensure that the financial system is resilient enough to support the economy in future recessions.
+10 years since the global financial system crumbled, British people’s confidence with the state of their economy improved considerably.  The unimodal distribution of satisfaction with the current market peaked at a confidence level of 5 out of 10, compared to a level of 3 ten years prior.  Compared to 324 people rating the economy at a level of 0 in 2008, that number decreased to 104.  It is clear that the changes and advancements the UK government implemented in its financial sector helped suppress doubts in the market which led the country out of a recession and into an economic boom.
 
-Also bills and their average (Figure \@ref(fig:billssssss)). (Notice how you can change the height and width so they don't take the whole page?)
+```{r plot2,echo=FALSE, fig.cap="Satisfaction with Economy UK 2018", warning=FALSE, message=FALSE}
+ggplot(UK_economy_2018, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the British Economy in 2018") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
 
-```{r billssssss, fig.cap="More bills of penguins", echo = FALSE, fig.width=8, fig.height=4}
-
-# This needs to be about the random data tha tI sasmpled?
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = FALSE) +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
 ```
 
-Talk way more about it. 
+French people had a similar perspective on the economy like the British had in 2008.  In France, 1606 people rated the economy at a level 5 out of 10 or below out of the 2053 people surveyed.  259 people expressed their satisfaction with the current economy as a level 0 out of 10, compared to 5 people who were extremely satisfied with the market and gave it a perfect score of 10 out 10.  Like the UK poll, the answers were skewed to the left towards zero, and this is because the global financial crisis at the time did not evade France.
+French people had a right to be concerned about their economy, since France suffered its worst recession since The Great Depression.  The fall in GDP began in spring 2008 and accelerated through autumn and winter 2009(Jinnuri, 2010).  During this time, French exports dropped by 12.4% which resulted in a lack of investment in domestic firms(Jolly, 2009).  The lack of output ultimately caused the unemployment rate to soar and assets such as real estate to drop.  By 2009, job losses reached 336,000 for the economy as a whole and to 392 000 for the non-agricultural market sector(Jolly, 2009).  Ultimately, unrest grew in France until there was a nationwide protest about President Nicolas Sarkozy’s economic policies which resulted in over one million protestors taking to the streets(Jolly, 2009).  The demonstrations were intended to highlight the high unemployment rates in the country as well as the president’s plan to reduce the number of permanent public sector jobs.  The government estimated that about 25% - 33% of public sector workers participated in the protest (Jolly, 2009).  
+
+```{r plot3,echo=FALSE, fig.cap="Satisfaction with Economy France 2008", warning=FALSE, message=FALSE}
+ggplot(French_economy_2008, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the French Economy in 2008") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+The same survey a decade later produced different results in France.  Public opinions shifted as the French and global economies recovered from the recession.  Although many people were still not satisfied with the condition of the market in 2018, 167 more people gave it a rating of 5 out of 10 than a decade earlier and 100 more people rated it at a level 6.  France’s economy grew each quarter during 2018, driven by exports which highlights the rebound from the recession where exports dropped considerably(Thomas, 2019).  In 2017, a year before the survey was conducted again, the economy grew at a decade-high rate of 2.3 percent, justifying French people’s recent optimism in the market(Thomas, 2019). 
+
+```{r plot4,echo=FALSE, fig.cap="Satisfaction with Economy France 2018", warning=FALSE, message=FALSE}
+ggplot(French_economy_2018, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the French Economy in 2018") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+
+Prior to the global economic crisis in 2008, Spain had become one of Europe’s most successful economies.  In 2006, the Spanish economy grew 3.9%, and then 3.7% in 2007(Royo, 2020).  However, this debt fueled dream was ruined and the country’s economy imploded after 2008.  Spain did not address its fundamental challenge, which was its declining productivity that grew at a rate of one point below the European Union average, placing Spain at the bottom of the EU in that regard (Royo,2020).  Additionally, family indebtedness reached 115% of disposable income in 2006 and the construction and housing sectors accounted for an unsustainable 18.5% of GDP which was two times the Eurozone average.  Due to house prices rising 150% from 1998 to 2006, the economic crisis in 2008 resulted in the collapse of the housing bubble, and left the economy in a dire situation.
+Considering the state of Spain’s economy in 2008, it is surprising that people did not have a more negative outlook on the market like in France and the United Kingdom at the same time.  In Spain, only 182 out of 2532 people gave the current state of the economy a rating of 0 out of 10.  That is a rate of only 7.19%, while in the UK that rate was 14% and in France it was 12.62%.  As well, almost 20% of people gave the economy a score of 5 out of 10, which is significantly higher than the 11.79% of people who gave that rating to the French economy and 12.25% of people who rated the UK economy at that level.  Since the Spanish market had been so bullish in the years leading up to the economic crisis, and since real estate had sky rocketed from 1998 to 2006, perhaps people were too naïve and optimistic to think that the collapse of global financial institutions would not have a detrimental impact in Spain.
+
+```{r plot5,echo=FALSE, fig.cap="Satisfaction with Economy Spain 2008", warning=FALSE, message=FALSE}
+ggplot(Spanish_economy_2008, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the Spanish Economy in 2008") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+However, optimism in the economy did not last for long.  In 2009, almost overnight, Spain’s debt burden doubled, and since the country is tethered to the euro, they could not print money and risk inflation to pay off debts like other countries could, but had to cut spending and raise taxes instead (Hill, 2013).  These policies were particularly devastating to public employees and pensioners.  The country managed to recover from this recession in the coming years and stopped relying on its old economic model which relied on speculative asset bubbles and unsustainable private debt (Hill, 2013).  When the Spanish population was surveyed again in 2018, they were not pessimistic about the state of the economy and that was indicated by the 26.1% of citizens that rated the economy at a level of 6 out of 10 or higher, compared to the 15.68% of people that gave the same rating to the economy a decade earlier.
+
+```{r plot6,echo=FALSE, fig.cap="Satisfaction with Economy Spain 2018", warning=FALSE, message=FALSE}
+ggplot(Spanish_economy_2018, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the Spanish Economy in 2018") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+
+Slovenians were not dissatisfied with their economy in 2008.  The most common rating they gave to the state of the market was a level 5 out of 10, and the country was recognized as the most prosperous post-socialist nation in Europe at the time.  Since the country’s independence, Slovenia’s GDP grew on average by 4.5% per year from 1993 to 2008 and its GDP rose from less than 50% to 87% of the EU average by 2009(Guardiancich, 2013).  The reason that Slovenians were not more critical of the state of their economy in 2008 was because the recession did not hit them until 2009, when the GDP fell by 7.9%.  While the unemployment rate rose to around 4% in 2008, it rose to over 10% by the next year.
+
+```{r plot7,echo=FALSE, fig.cap="Satisfaction with Economy Slovenia 2008", warning=FALSE, message=FALSE}
+ggplot(Slovenian_economy_2008, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the Slovenian Economy in 2008") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+A decade later, the survey from Slovenia showed that people were very confident in their economy.  In fact, 46.6% of the population rated the economy at a level of 6 out of 10 or greater, at a much higher rate compared to what Spanish, French, and British participants ranked their economies in 2018.  One of the reasons for this is because Slovenia’s employment rate was higher than the average of countries in the Organization for Economic Co-operation and Development which consists of countries such as Canada, Denmark, Germany and Luxembourg.
+
+```{r plot8,echo=FALSE, fig.cap="Satisfaction with Economy Slovenia 2018", warning=FALSE, message=FALSE}
+ggplot(Slovenian_economy_2018, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the Slovenian Economy in 2018") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+
+Norway was the only Western industrialized state to escape the global economic meltdown relatively unscathed (Guo, 2010).  The country suffered a severe banking crisis of its own in the early 90s when the three largest commercial banks in the country had to be taken over by the government.  This was a result of banks trying to make their clients borrow more and attract new clients.  Since banks were unable to increase their own funds in line with the growing credits and exposure, they used subordinated debt, which harmed relations with international lenders as they struggled to pay them(Skogstad Aamo, 2018).  Additionally, Norwegian banks did not buy sub-prime based bonds that collapsed markets across the globe so they did not experience the same losses as other banks.  As well, the absence of UK and US banks in Norway decreased the direct sale of those bonds.  As a result, in the 2008 ESS survey in Norway, the most common rating of the state of the country’s economy was 7 out of 10 with 327 out of 1536 votes, while 310 people rated the economy at a level 8 out of 10.  This is vastly different from the other European countries in this report, since Norway had modified its financial institutions to be better equipped for a recession than it was in the 1990’s.  
+
+```{r plot9,echo=FALSE, fig.cap="Satisfaction with Economy Norway 2008", warning=FALSE, message=FALSE}
+ggplot(Norwegian_economy_2008, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the Norwegian Economy in 2008") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+
+A decade later, the most common rating of the state of the Norwegian economy was 8 out of 10, consisting of 28.2% of all votes.  The survey results were right skewed towards higher confidence levels in the economy and indicated that Norwegians were more satisfied with the state of their economy than any other European country.
+
+```{r plot10,echo=FALSE, fig.cap="Satisfaction with Economy Norway 2018", warning=FALSE, message=FALSE}
+ggplot(Norwegian_economy_2018, aes(x=stfeco, fill = stfeco)) + geom_bar(stat = "count", fill = "steelblue", width = 0.5) + 
+  ggtitle("Satisfaction with the State of the Norwegian Economy in 2018") + xlab("Satisfaction (Scale from 0-10)") + ylab("Number of People") +
+  theme(axis.title.x=element_text(color = "black", size = 12, face = "bold"),    
+        axis.title.y.left = element_text(color = "black", size = 12, face = "bold"),       
+        axis.text.x = element_text( vjust = 0.5, hjust=0.5),        
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "none") + scale_fill_brewer(palette="Blues") +    
+  stat_count(geom = "text", colour = "black", size = 4,                            
+             aes(label = ..count.. ), position=position_stack(vjust=0.5))
+
+```
+
+In conclusion, Norway regulated its banks and made sure they did not get too greedy with their aggressive expansion, and as a result the Norwegian economy did not suffer as much as other European economies suffered.  Countries which were heavily impacted by the recession learned from their mistakes, such as how in the United Kingdom the Bank of England’s Financial Policy Committee was established to spot risks and ensure that the financial system is resilient enough to support the economy in future recessions.  All in all, each country recovered from the Great Recession and citizens were more satisfied with the state of their country’s economy a decade later, after a period of economic growth lead to more favourable financial conditions.
+
+
+## Works Cited
+Guardiancich, Igor. "The Downfall Of Slovenia, And Why It Matters For Europe". The Conversation, 2013, https://theconversation.com/the-downfall-of-slovenia-and-why-it-matters-for-europe-19180.
+
+Guo, Jerry. "Stoltenberg: How Norway Escaped Economic Meltdown". Newsweek, 2010, https://www.newsweek.com/stoltenberg-how-norway-escaped-economic-meltdown-70511.
+
+Hadley Wickham [aut, RStudio [cph, cre]. 2021. Tidyverse: Easily Install and Load the ’Tidyverse’. https: //CRAN.R-project.org/package=tidyverse.
+
+Hao Zhu ORCID iD [aut, Thomas Travison [ctb], cre]. 2021. KableExtra: Construct Complex Table with ’Kable’ and Pipe Syntax. https://CRAN.R-project.org/package=kableExtra.
+
+Hill, Steven. "To Hell And Back: Spain's Grotesque Recession And Its Surprising New Economy". The Atlantic, 2013, https://www.theatlantic.com/business/archive/2013/10/to-hell-and-back-spains-grotesque-recession-and-its-surprising-new-economy/280678/.
+
+
+Jolly, David. "Hundreds Of Thousands Protest In France (Published 2009)". Nytimes.Com, 2009, https://www.nytimes.com/2009/01/30/world/europe/30france.html.
+
+R Core Team. 2020. R: A Language and Environment for Statistical Computing. Vienna, Austria: R Foundation for Statistical Computing. https://www.R-project.org/. 
+
+Royo, Sebastian. "From Boom To Bust: The Economic Crisis In Spain 2008–2013". National Library Of Medicine, 2020, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7320871/.
+
+Skogstad Aamo, Bjorn. "The Financial Crisis And Norway". Rethinking Economics Norge, 2018, https://rethinkeconomics.no/2018/10/24/the-financial-crisis-and-norway/.
+
+"The Financial Crisis - 10 Years On". Adobe Creative Cloud Express, 2022, https://express.adobe.com/page/DAlRb7HdWiHqA/.
+Thomas, Leigh. "French Economy Ended 2018 On A Firmer Footing Than Feared". Reuters.Com, 2019, https://www.reuters.com/article/us-france-economy-idUSKCN1PO0I7.
+
+Wickham, Hadley. 2020. Reshape2: Flexibly Reshape Data: A Reboot of the Reshape Package. https: //cran.r-project.org/package=reshape2 
+
+Yihui Xie ORCID iD [aut, Abhraneel Sarma [ctb], cre]. 2021. Knitr: A General-Purpose Package for Dynamic Report Generation in R. https://CRAN.R-project.org/package=knitr 
 
 
 
-# Model
-
-\begin{equation}
-Pr(\theta | y) = \frac{Pr(y | \theta) Pr(\theta)}{Pr(y)}  (\#eq:bayes)
-\end{equation}
-
-Equation \@ref(eq:bayes) seems useful, eh?
-
-Here's a dumb example of how to use some references: In paper we run our analysis in `R` [@citeR]. We also use the `tidyverse` which was written by @thereferencecanbewhatever If we were interested in baseball data then @citeLahman could be useful. 
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
-
-# Results
-
-# Discussion
-
-## First discussion point
-
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
-
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
-\newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional details
-
-
-\newpage
-
-
-# References
 
 
